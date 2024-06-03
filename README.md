@@ -22,6 +22,8 @@ This game is developed as part of an internship project, with the main goal of c
 
 ## Live link:
 
+https://costea47.github.io/Bob-Marley---From-Refugee-to-Legend-Rosebud-Ai--intership-game-/
+
 ## Live on RosebudAi
 
 https://play.rosebud.ai/projects/f029d46d-867d-4fb2-aac4-fb83bbfdbea9
