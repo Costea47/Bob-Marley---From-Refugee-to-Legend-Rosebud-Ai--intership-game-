@@ -17,40 +17,34 @@ var StartScene = new Phaser.Class({
   },
 
   create: function () {
-    // Add characters to the scene
     this.add.image(400, 400, "character1").setScale(1);
-
-    // Add a title with a white border
-    var title = this.add.text(200, 300, "", {
-      color: "black",
-      fontFamily: "Arial",
-      fontSize: "60px",
-      padding: 0,
-    });
-    title.setStroke("#FFFFFF", 9);
+    var title = this.add
+      .text(200, 300, "", {
+        color: "black",
+        fontFamily: "Arial",
+        fontSize: "60px",
+        padding: 0,
+      })
+      .setStroke("#FFFFFF", 9);
 
     var startButton = this.add
       .text(300, 400, "Start", {
         color: "white",
         fontFamily: "Arial",
         fontSize: "40px",
-        backgroundColor: "rgba(255,204,1,0.8744747899159664)",
+        backgroundColor: "rgba(255,204,1,0.874)",
         padding: { left: 50, right: 50, top: 10, bottom: 10 },
       })
       .setInteractive();
 
-    startButton.on("pointerdown", () => {
-      this.scene.start("MainScene");
-    });
+    startButton.on("pointerdown", () => this.scene.start("MainScene"));
+    startButton.on("pointerover", () =>
+      startButton.setBackgroundColor("rgba(255,204,1,0.874)")
+    );
+    startButton.on("pointerout", () =>
+      startButton.setBackgroundColor("rgba(0,0,0,0.6)")
+    );
 
-    startButton.on("pointerover", () => {
-      startButton.setBackgroundColor("rgba(255,204,1,0.8744747899159664)");
-    });
-    startButton.on("pointerout", () => {
-      startButton.setBackgroundColor("rgba(0,0,0,0.6)");
-    });
-
-    // Play the background music
     this.music = this.sound.add("backgroundMusic");
     this.music.play({ loop: true });
   },
@@ -59,7 +53,9 @@ var StartScene = new Phaser.Class({
 class MainScene extends Phaser.Scene {
   constructor() {
     super("MainScene");
-    this.volumeSlider = null; // Initialize volumeSlider to null
+    this.volumeSlider = null;
+    this.boxes = [];
+    this.factButtons = {};
   }
 
   preload() {
@@ -87,63 +83,110 @@ class MainScene extends Phaser.Scene {
       "previousButton",
       "https://play.rosebud.ai/assets/Custom-Icon-Design-Flat-Cute-Arrows-Button-Arrow-Left-1.512.png?v4es"
     );
+    this.load.image(
+      "vinylRecord",
+      "https://play.rosebud.ai/assets/_2e5bff8d-76af-48f3-b505-0558cabb7264-removebg-preview.png?C7GH"
+    );
+    this.load.image(
+      "openBox",
+      "https://play.rosebud.ai/assets/cardboard box.png?lQ0D"
+    );
+    this.load.image(
+      "cardboardBox4",
+      "https://play.rosebud.ai/assets/cartoon box with lid open and vinyl records coming out of the box.png?dyt7"
+    );
+    this.load.image(
+      "cardboardBox3",
+      "https://play.rosebud.ai/assets/cardboard box.png?lQ0D"
+    );
+    this.load.image(
+      "vinylRecordImage",
+      "https://play.rosebud.ai/assets/_5a21d28d-4eb5-41f0-bb2d-f24ddfa0a0f8-removebg-preview.png?0n9J"
+    );
+    this.load.image(
+      "newImage",
+      "https://play.rosebud.ai/assets/_4e0d1f70-82cf-45fd-a526-9ed827b16827-removebg-preview.png?ouJa"
+    );
+    this.load.image(
+      "newImage2",
+      "https://play.rosebud.ai/assets/_48e3534f-1c4c-41a5-9dab-6a65dda86323-removebg-preview (2).png?opob"
+    );
+    this.load.image(
+      "newImage3",
+      "https://play.rosebud.ai/assets/_db08530a-3ee6-4990-b93f-91836588707e-removebg-preview.png?3bkk"
+    );
   }
 
   create() {
-    // Add the background image
     this.add.image(400, 300, "bobMarleyRoom");
 
-    // Add the first cardboard box at the bottom of the scene with a padding of 100px
-    let boxImage1 = this.add.image(380, 800, "cardboardBox"); // Initially position it at the bottom of the screen
+    // Create boxes with their respective fact scene keys
+    this.createBox(380, 550, "cardboardBox", "vinylRecord", "factScene1");
+    this.createBox(460, 520, "cardboardBox2", "vinylRecordImage", "factScene2");
+    this.createBox(250, 550, "openBox", "newImage", "factScene3");
+    this.createBox(260, 600, "cardboardBox4", "newImage2", "factScene4");
+    this.createBox(130, 600, "cardboardBox3", "newImage3", "factScene5");
 
-    // Resize the first box to 20% of its original size
-    boxImage1.setScale(0.2);
-
-    let boxHeight1 = boxImage1.displayHeight; // Get the height of the first image
-    boxImage1.setY(630 - boxHeight1 / 2 - 20); // Set the y position of the first image considering the height of the image and the padding
-
-    // Add the second cardboard box next to the first one
-    let boxImage2 = this.add.image(
-      boxImage1.x + boxImage1.displayWidth + 10,
-      800,
-      "cardboardBox2"
-    ); // Initially position it next to the first box
-
-    // Resize the second box to 20% of its original size
-    boxImage2.setScale(0.2);
-
-    let boxHeight2 = boxImage2.displayHeight; // Get the height of the second image
-    boxImage2.setY(620 - boxHeight2 / 2 - 20); // Set the y position of the second image considering the height of the image and the padding
-
-    // Add music button and scale it to 60px
-    let musicButton = this.add.image(750, 550, "musicButton").setInteractive();
-    let buttonScale = 60 / musicButton.width;
-    musicButton.setScale(buttonScale);
-
-    // Add volume slider
+    let musicButton = this.add
+      .image(750, 550, "musicButton")
+      .setInteractive()
+      .setScale(0.05);
     this.createVolumeSlider();
 
-    // Interactive music button
     musicButton.on("pointerdown", () => {
-      if (this.scene.manager.scenes[0].music.isPlaying) {
-        this.scene.manager.scenes[0].music.pause();
-      } else {
-        this.scene.manager.scenes[0].music.resume();
-      }
+      let music = this.scene.manager.scenes[0].music;
+      music.isPlaying ? music.pause() : music.resume();
     });
 
-    // Volume control
     this.volumeSlider.oninput = function () {
       this.scene.manager.scenes[0].music.volume = this.volumeSlider.value;
     }.bind(this);
 
-    // Add next scene button
-    let nextButton = this.add.image(0, 0, "nextButton").setInteractive();
-    nextButton.setOrigin(0, 0); // Change the origin to the top-left corner
-    nextButton.setScale(0.1); // Resize the button to 20% of its original size
-    nextButton.on("pointerdown", () => {
-      this.scene.start("NextScene");
+    let nextButton = this.add
+      .image(0, 0, "nextButton")
+      .setInteractive()
+      .setOrigin(0, 0)
+      .setScale(0.1);
+    nextButton.on("pointerdown", () => this.scene.start("NextScene"));
+  }
+
+  createBox(x, y, boxImageKey, displayImageKey, factSceneKey) {
+    let box = this.add.image(x, y, boxImageKey).setScale(0.2).setInteractive();
+    box.on("pointerdown", () => {
+      if (this[displayImageKey]) {
+        this[displayImageKey].destroy();
+        this[displayImageKey] = null;
+
+        if (this.factButtons[displayImageKey]) {
+          this.factButtons[displayImageKey].destroy();
+          this.factButtons[displayImageKey] = null;
+        }
+      } else {
+        this[displayImageKey] = this.add
+          .image(400, 300, displayImageKey)
+          .setScale(0.8)
+          .setInteractive();
+        this.input.setDraggable(this[displayImageKey]);
+
+        if (!this.factButtons[displayImageKey]) {
+          this.factButtons[displayImageKey] = this.add
+            .text(400, 480, "See Facts!", {
+              color: "#84eab3",
+              fontFamily: "Arial",
+              fontSize: "20px",
+              backgroundColor: "rgba(0,0,0,0.6)",
+              padding: { left: 20, right: 20, top: 10, bottom: 10 },
+            })
+            .setInteractive()
+            .setOrigin(0.5, 0);
+
+          this.factButtons[displayImageKey].on("pointerdown", () => {
+            this.scene.start(factSceneKey);
+          });
+        }
+      }
     });
+    this.boxes.push(box);
   }
 
   createVolumeSlider() {
@@ -154,11 +197,62 @@ class MainScene extends Phaser.Scene {
       this.volumeSlider.min = 0;
       this.volumeSlider.max = 1;
       this.volumeSlider.step = 0.01;
-      this.volumeSlider.value = this.scene.manager.scenes[0].music.volume; // Get the volume from the StartScene
+      this.volumeSlider.value = this.scene.manager.scenes[0].music.volume;
       document.getElementById("renderDiv").appendChild(this.volumeSlider);
     }
   }
 }
+
+class FactScene extends Phaser.Scene {
+  constructor(key, imageUrl) {
+    super(key);
+    this.imageUrl = imageUrl;
+  }
+
+  preload() {
+    this.load.image("factImage", this.imageUrl);
+  }
+
+  create() {
+    this.add.image(400, 300, "factImage").setOrigin(0.5);
+
+    const backButton = this.add
+      .text(20, 20, "Back", {
+        fontSize: "24px",
+        backgroundColor: "rgba(0, 0, 0, 0.6)",
+        padding: { x: 10, y: 5 },
+        color: "#ffffff",
+      })
+      .setInteractive();
+
+    backButton.on("pointerdown", () => {
+      this.scene.start("MainScene");
+    });
+  }
+}
+
+const factScenes = [
+  new FactScene(
+    "factScene1",
+    "https://play.rosebud.ai/assets/Redemption song.png?cuLp"
+  ),
+  new FactScene(
+    "factScene2",
+    "https://play.rosebud.ai/assets/Buffalo Soldiers.png?RwgV"
+  ),
+  new FactScene(
+    "factScene3",
+    "https://play.rosebud.ai/assets/Jamming.png?xXY0"
+  ),
+  new FactScene(
+    "factScene4",
+    "https://play.rosebud.ai/assets/No women No cry.png?JNfy"
+  ),
+  new FactScene(
+    "factScene5",
+    "https://play.rosebud.ai/assets/One love.png?998z"
+  ),
+];
 
 class NextScene extends Phaser.Scene {
   constructor() {
@@ -168,196 +262,7 @@ class NextScene extends Phaser.Scene {
   preload() {
     this.load.image(
       "bobMarley2",
-      "https://play.rosebud.ai/assets/bob marley2.png?ILZi"
-    );
-    this.load.image(
-      "openBoxWithRecords",
-      "https://play.rosebud.ai/assets/cartoon box with lid open and vinyl records coming out of the box.png?kR7W"
-    );
-    this.load.image(
-      "nextButton",
-      "https://play.rosebud.ai/assets/Custom-Icon-Design-Flat-Cute-Arrows-Button-Arrow-Right-1.512.png?i992"
-    );
-    this.load.image(
-      "previousButton",
-      "https://play.rosebud.ai/assets/Custom-Icon-Design-Flat-Cute-Arrows-Button-Arrow-Left-1.512.png?v4es"
-    );
-  }
-
-  create() {
-    this.add.image(400, 300, "bobMarley2");
-    let openBoxWithRecords = this.add.image(100, 400, "openBoxWithRecords");
-    openBoxWithRecords.setOrigin(0, 0); // Position the image in the left corner of the page
-
-    let desiredWidth = 250;
-    let scale = desiredWidth / openBoxWithRecords.width;
-    openBoxWithRecords.setScale(scale); // Resize the open box with records to be 250px wide
-
-    // Add music button and scale it to 60px
-    let musicButton = this.add.image(750, 550, "musicButton").setInteractive();
-    let buttonScale = 60 / musicButton.width;
-    musicButton.setScale(buttonScale);
-
-    // Interactive music button
-    musicButton.on("pointerdown", () => {
-      if (this.scene.manager.scenes[0].music.isPlaying) {
-        this.scene.manager.scenes[0].music.pause();
-      } else {
-        this.scene.manager.scenes[0].music.resume();
-      }
-    });
-
-    // Add back button on the same line as next button, but on the opposite side
-    let backButton = this.add.image(800, 0, "previousButton").setInteractive();
-    backButton.setOrigin(1, 0); // Change the origin to the top-right corner
-    backButton.setScale(0.1); // Resize the button to 30% of its original size
-    backButton.on("pointerdown", () => {
-      this.scene.start("MainScene");
-    });
-
-    // Add next scene button on the left side
-    let nextSceneButton = this.add.image(0, 0, "nextButton").setInteractive();
-    nextSceneButton.setOrigin(0, 0); // Change the origin to the top-left corner
-    nextSceneButton.setScale(0.1); // Resize the button to 20% of its original size
-    nextSceneButton.on("pointerdown", () => {
-      this.scene.start("ThirdScene");
-    });
-  }
-}
-
-class ThirdScene extends Phaser.Scene {
-  constructor() {
-    super("ThirdScene");
-  }
-
-  preload() {
-    this.load.image(
-      "bobMarleyRoom3",
-      "https://play.rosebud.ai/assets/bob marley room3.png?8Hm5"
-    );
-    this.load.image(
-      "nextButton",
-      "https://play.rosebud.ai/assets/Custom-Icon-Design-Flat-Cute-Arrows-Button-Arrow-Right-1.512.png?i992"
-    );
-    this.load.image(
-      "previousButton",
-      "https://play.rosebud.ai/assets/Custom-Icon-Design-Flat-Cute-Arrows-Button-Arrow-Left-1.512.png?v4es"
-    );
-  }
-
-  create() {
-    // Add the background image
-    this.add.image(400, 300, "bobMarleyRoom3");
-
-    // Add music button and scale it to 60px
-    let musicButton = this.add.image(750, 550, "musicButton").setInteractive();
-    let buttonScale = 60 / musicButton.width;
-    musicButton.setScale(buttonScale);
-
-    // Interactive music button
-    musicButton.on("pointerdown", () => {
-      if (this.scene.manager.scenes[0].music.isPlaying) {
-        this.scene.manager.scenes[0].music.pause();
-      } else {
-        this.scene.manager.scenes[0].music.resume();
-      }
-    });
-
-    // Add next scene button on the left side
-    let nextSceneButton = this.add.image(0, 0, "nextButton").setInteractive();
-    nextSceneButton.setOrigin(0, 0); // Change the origin to the top-left corner
-    nextSceneButton.setScale(0.1); // Resize the button to 20% of its original size
-    nextSceneButton.on("pointerdown", () => {
-      this.scene.start("FourthScene");
-    });
-
-    // Add previous scene button on the opposite side
-    let previousSceneButton = this.add
-      .image(800, 0, "previousButton")
-      .setInteractive();
-    previousSceneButton.setOrigin(1, 0); // Change the origin to the top-right corner
-    previousSceneButton.setScale(0.1); // Resize the button to 30% of its original size
-    previousSceneButton.on("pointerdown", () => {
-      this.scene.start("NextScene");
-    });
-  }
-}
-
-class FourthScene extends Phaser.Scene {
-  constructor() {
-    super("FourthScene");
-  }
-
-  preload() {
-    this.load.image(
-      "fourthSceneBackground",
-      "https://play.rosebud.ai/assets/_7efc9423-7495-416f-9ac0-08b6ca739f71.jpg?gt9c"
-    );
-    this.load.image(
-      "nextButton",
-      "https://play.rosebud.ai/assets/Custom-Icon-Design-Flat-Cute-Arrows-Button-Arrow-Right-1.512.png?i992"
-    );
-    this.load.image(
-      "previousButton",
-      "https://play.rosebud.ai/assets/Custom-Icon-Design-Flat-Cute-Arrows-Button-Arrow-Left-1.512.png?v4es"
-    );
-  }
-
-  create() {
-    // Add the background image
-    this.add.image(400, 300, "fourthSceneBackground");
-
-    // Add music button and scale it to 60px
-    let musicButton = this.add.image(750, 550, "musicButton").setInteractive();
-    let buttonScale = 60 / musicButton.width;
-    musicButton.setScale(buttonScale);
-
-    // Interactive music button
-    musicButton.on("pointerdown", () => {
-      if (this.scene.manager.scenes[0].music.isPlaying) {
-        this.scene.manager.scenes[0].music.pause();
-      } else {
-        this.scene.manager.scenes[0].music.resume();
-      }
-    });
-
-    // Add previous scene button on the opposite side
-    let previousSceneButton = this.add
-      .image(800, 0, "previousButton")
-      .setInteractive();
-    previousSceneButton.setOrigin(1, 0); // Change the origin to the top-right corner
-    previousSceneButton.setScale(0.1); // Resize the button to 30% of its original size
-    previousSceneButton.on("pointerdown", () => {
-      this.scene.start("ThirdScene");
-    });
-
-    // Add next scene button on the left side
-    let nextSceneButton = this.add.image(0, 0, "nextButton").setInteractive();
-    nextSceneButton.setOrigin(0, 0); // Change the origin to the top-left corner
-    nextSceneButton.setScale(0.1); // Resize the button to 20% of its original size
-    nextSceneButton.on("pointerdown", () => {
-      this.scene.start("FifthScene");
-    });
-  }
-}
-
-class FifthScene extends Phaser.Scene {
-  constructor() {
-    super("FifthScene");
-  }
-
-  preload() {
-    this.load.image(
-      "fifthSceneBackground",
       "https://play.rosebud.ai/assets/_98bc516d-453a-45d7-b0ef-67c009917976-Photoroom.jpg?4pNE"
-    );
-    this.load.image(
-      "nextButton",
-      "https://play.rosebud.ai/assets/Custom-Icon-Design-Flat-Cute-Arrows-Button-Arrow-Right-1.512.png?i992"
-    );
-    this.load.image(
-      "previousButton",
-      "https://play.rosebud.ai/assets/Custom-Icon-Design-Flat-Cute-Arrows-Button-Arrow-Left-1.512.png?v4es"
     );
     this.load.image(
       "websiteButton",
@@ -367,38 +272,14 @@ class FifthScene extends Phaser.Scene {
 
   create() {
     // Add the background image
-    this.add.image(300, 500, "fifthSceneBackground");
-
-    // Add music button and scale it to 60px
-    let musicButton = this.add.image(750, 550, "musicButton").setInteractive();
-    let buttonScale = 60 / musicButton.width;
-    musicButton.setScale(buttonScale);
-
-    // Interactive music button
-    musicButton.on("pointerdown", () => {
-      if (this.scene.manager.scenes[0].music.isPlaying) {
-        this.scene.manager.scenes[0].music.pause();
-      } else {
-        this.scene.manager.scenes[0].music.resume();
-      }
-    });
-
-    // Add previous scene button on the opposite side
-    let previousSceneButton = this.add
-      .image(800, 0, "previousButton")
-      .setInteractive();
-    previousSceneButton.setOrigin(1, 0); // Change the origin to the top-right corner
-    previousSceneButton.setScale(0.1); // Resize the button to the same scale as the next button
-    previousSceneButton.on("pointerdown", () => {
-      this.scene.start("FourthScene");
-    });
+    this.add.image(380, 400, "bobMarley2");
 
     // Add the website button
     let websiteButton = this.add
       .text(400, 580, "Visit arts4refugees.substack.com to discover more!", {
         color: "#83f28f", // Light blue color,
         fontFamily: "Arial",
-        fontSize: "20px",
+        fontSize: "30px",
         backgroundColor: "rgba(0, 0, 0, 0.7)",
         padding: { left: 20, right: 20, top: 10, bottom: 10 },
       })
@@ -408,8 +289,42 @@ class FifthScene extends Phaser.Scene {
     websiteButton.on("pointerdown", () => {
       window.open("https://arts4refugees.substack.com/", "_blank");
     });
+
+    // Add the "Thank you for playing!" button
+    let thankYouButton = this.add
+      .text(400, 530, "Thank you for playing!", {
+        color: "#ffffff",
+        fontFamily: "Arial",
+        fontSize: "24px",
+        backgroundColor: "rgba(0, 0, 0, 0.6)",
+        padding: { x: 10, y: 5 },
+      })
+      .setOrigin(0.5, 1)
+      .setInteractive();
+
+    thankYouButton.on("pointerdown", () => {
+      // Handle the event when the "Thank you for playing!" button is clicked
+    });
   }
 }
+
+// var config = {
+//   type: Phaser.AUTO,
+//   parent: "renderDiv",
+//   scale: {
+//     mode: Phaser.Scale.FIT,
+//     autoCenter: Phaser.Scale.CENTER_BOTH,
+//     width: 800,
+//     height: 600,
+//   },
+//   physics: {
+//     default: "arcade",
+//     arcade: {
+//       gravity: { y: 200 },
+//     },
+//   },
+//   scene: [StartScene, MainScene, FactScene, NextScene],
+// };
 
 var config = {
   type: Phaser.AUTO,
@@ -426,14 +341,7 @@ var config = {
       gravity: { y: 200 },
     },
   },
-  scene: [
-    StartScene,
-    MainScene,
-    NextScene,
-    ThirdScene,
-    FourthScene,
-    FifthScene,
-  ],
+  scene: [StartScene, MainScene, ...factScenes, NextScene],
 };
 
 var game = new Phaser.Game(config);
