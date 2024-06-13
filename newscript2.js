@@ -102,24 +102,12 @@ class InstructionScene extends Phaser.Scene {
     });
   }
 }
-
 class MainScene extends Phaser.Scene {
   constructor() {
     super("MainScene");
     this.volumeSlider = null;
-    this.vinylRecord = null;
-    this.openBox = null;
-    this.vinylRecordImage = null;
-    this.vinylRecordImageVisible = false;
-    this.newImage = null;
-    this.newImageVisible = false;
-    this.newImage2 = null;
-    this.newImage2Visible = false;
-    this.newImage3 = null;
-    this.newImage3Visible = false;
-    this.factButton1 = null; // Fact button for boxImage1
-    this.factButton2 = null; // Fact button for boxImage2
-    this.factButton3 = null; // Fact button for openBox
+    this.boxes = [];
+    this.factButtons = {};
   }
 
   preload() {
@@ -133,7 +121,7 @@ class MainScene extends Phaser.Scene {
     );
     this.load.image(
       "cardboardBox2",
-      "https://play.rosebud.ai/assets/cartoon box with lid open and vinyl records coming out of the box.png?dyt7"
+      "https://play.rosebud.ai/assets/cardboard box.png?lQ0D"
     );
     this.load.image(
       "musicButton",
@@ -149,7 +137,7 @@ class MainScene extends Phaser.Scene {
     );
     this.load.image(
       "vinylRecord",
-      "https://play.rosebud.ai/assets/_2e5bff8d-76af-48f3-b505-0558cabb7264-removebg-preview.png?C7GH"
+      "https://play.rosebud.ai/assets/_5a21d28d-4eb5-41f0-bb2d-f24ddfa0a0f8-removebg-preview.png?0n9J"
     );
     this.load.image(
       "openBox",
@@ -157,35 +145,21 @@ class MainScene extends Phaser.Scene {
     );
     this.load.image(
       "vinylRecordImage",
-      "https://play.rosebud.ai/assets/_5a21d28d-4eb5-41f0-bb2d-f24ddfa0a0f8-removebg-preview.png?0n9J"
+      "https://play.rosebud.ai/assets/_48e3534f-1c4c-41a5-9dab-6a65dda86323-removebg-preview (2).png?opob"
     );
     this.load.image(
       "newImage",
       "https://play.rosebud.ai/assets/_4e0d1f70-82cf-45fd-a526-9ed827b16827-removebg-preview.png?ouJa"
-    );
-    this.load.image(
-      "newImage2",
-      "https://play.rosebud.ai/assets/_48e3534f-1c4c-41a5-9dab-6a65dda86323-removebg-preview (2).png?opob"
     );
   }
 
   create() {
     this.add.image(400, 300, "bobMarleyRoom");
 
-    let boxImage1 = this.add
-      .image(380, 550, "cardboardBox")
-      .setScale(0.2)
-      .setInteractive();
-
-    let boxImage2 = this.add
-      .image(boxImage1.x + boxImage1.displayWidth + 10, 520, "cardboardBox2")
-      .setScale(0.2)
-      .setInteractive();
-
-    this.openBox = this.add
-      .image(250, 550, "openBox")
-      .setScale(0.2)
-      .setInteractive();
+    // Create boxes with their respective fact scene keys
+    this.createBox(380, 550, "cardboardBox", "vinylRecord", "factScene1");
+    this.createBox(460, 520, "cardboardBox2", "vinylRecordImage", "factScene2");
+    this.createBox(250, 550, "openBox", "newImage", "factScene3");
 
     let musicButton = this.add
       .image(750, 550, "musicButton")
@@ -207,125 +181,48 @@ class MainScene extends Phaser.Scene {
       .setInteractive()
       .setOrigin(0, 0)
       .setScale(0.1);
-    nextButton.on("pointerdown", () => this.scene.start("ChatScene"));
-
-    boxImage1.on("pointerdown", () => {
-      if (this.vinylRecord) {
-        this.vinylRecord.destroy();
-        this.vinylRecord = null;
-
-        if (this.factButton1) {
-          this.factButton1.destroy();
-          this.factButton1 = null;
-        }
-      } else {
-        this.vinylRecord = this.add
-          .image(400, 300, "vinylRecord")
-          .setScale(0.8)
-          .setInteractive();
-        this.input.setDraggable(this.vinylRecord);
-
-        if (!this.factButton1) {
-          this.factButton1 = this.add
-            .text(400, 480, "See Facts!", {
-              color: "#84eab3",
-              fontFamily: "Arial",
-              fontSize: "20px",
-              backgroundColor: "rgba(0,0,0,0.6)",
-              padding: { left: 20, right: 20, top: 10, bottom: 10 },
-            })
-            .setInteractive()
-            .setOrigin(0.5, 0);
-
-          this.factButton1.on("pointerdown", () => {
-            this.scene.start("FactScene", {
-              imageUrl:
-                "https://play.rosebud.ai/assets/_2e5bff8d-76af-48f3-b505-0558cabb7264-removebg-preview.png?C7GH",
-              backSceneKey: "MainScene",
-            });
-          });
-        }
-      }
-    });
-
-    boxImage2.on("pointerdown", () => {
-      if (this.vinylRecord) {
-        this.vinylRecord.destroy();
-        this.vinylRecord = null;
-
-        if (this.factButton2) {
-          this.factButton2.destroy();
-          this.factButton2 = null;
-        }
-      } else {
-        this.vinylRecord = this.add
-          .image(400, 300, "vinylRecordImage")
-          .setScale(0.8)
-          .setInteractive();
-        this.input.setDraggable(this.vinylRecord);
-
-        if (!this.factButton2) {
-          this.factButton2 = this.add
-            .text(400, 480, "See Facts!", {
-              color: "#84eab3",
-              fontFamily: "Arial",
-              fontSize: "20px",
-              backgroundColor: "rgba(0,0,0,0.6)",
-              padding: { left: 20, right: 20, top: 10, bottom: 10 },
-            })
-            .setInteractive()
-            .setOrigin(0.5, 0);
-
-          this.factButton2.on("pointerdown", () => {
-            this.scene.start("FactScene", {
-              imageUrl: "https://play.rosebud.ai/assets/Jamming.png?xXY0",
-              backSceneKey: "MainScene",
-            });
-          });
-        }
-      }
-    });
-
-    this.openBox.on("pointerdown", () => {
-      if (!this.newImageVisible) {
-        this.newImage = this.add
-          .image(400, 300, "newImage")
-          .setScale(0.8)
-          .setInteractive();
-        this.input.setDraggable(this.newImage);
-
-        if (!this.factButton3) {
-          this.factButton3 = this.add
-            .text(400, 480, "See Facts!", {
-              color: "#84eab3",
-              fontFamily: "Arial",
-              fontSize: "20px",
-              backgroundColor: "rgba(0,0,0,0.6)",
-              padding: { left: 20, right: 20, top: 10, bottom: 10 },
-            })
-            .setInteractive()
-            .setOrigin(0.5, 0);
-
-          this.factButton3.on("pointerdown", () => {
-            this.scene.start("FactScene", {
-              imageUrl: "https://play.rosebud.ai/assets/One love.png?998z",
-              backSceneKey: "MainScene",
-            });
-          });
-        }
-
-        this.newImageVisible = true;
-      } else {
-        this.newImage.destroy();
-        this.newImageVisible = false;
-
-        if (this.factButton3) {
-          this.factButton3.destroy();
-          this.factButton3 = null;
-        }
-      }
-    });
+    nextButton.on("pointerdown", () => this.scene.start("NextScene"));
   }
+
+  createBox(x, y, boxImageKey, displayImageKey, factSceneKey) {
+    let box = this.add.image(x, y, boxImageKey).setScale(0.2).setInteractive();
+    box.on("pointerdown", () => {
+      if (this[displayImageKey]) {
+        this[displayImageKey].destroy();
+        this[displayImageKey] = null;
+
+        if (this.factButtons[displayImageKey]) {
+          this.factButtons[displayImageKey].destroy();
+          this.factButtons[displayImageKey] = null;
+        }
+      } else {
+        this[displayImageKey] = this.add
+          .image(400, 300, displayImageKey)
+          .setScale(0.8)
+          .setInteractive();
+        this.input.setDraggable(this[displayImageKey]);
+
+        if (!this.factButtons[displayImageKey]) {
+          this.factButtons[displayImageKey] = this.add
+            .text(400, 480, "See Facts!", {
+              color: "#84eab3",
+              fontFamily: "Arial",
+              fontSize: "20px",
+              backgroundColor: "rgba(0,0,0,0.6)",
+              padding: { left: 20, right: 20, top: 10, bottom: 10 },
+            })
+            .setInteractive()
+            .setOrigin(0.5, 0);
+
+          this.factButtons[displayImageKey].on("pointerdown", () => {
+            this.scene.start(factSceneKey);
+          });
+        }
+      }
+    });
+    this.boxes.push(box);
+  }
+
   createVolumeSlider() {
     if (!this.volumeSlider) {
       this.volumeSlider = document.createElement("input");
@@ -339,7 +236,6 @@ class MainScene extends Phaser.Scene {
     }
   }
 }
-``;
 
 class ChatScene extends Phaser.Scene {
   constructor() {
@@ -355,9 +251,9 @@ class ChatScene extends Phaser.Scene {
 
   create() {
     this.add
-      .text(400, 30, "Chat with Bob Marley about his Refugee Journey", {
+      .text(400, 100, "Chat with Bob Marley about his Refugee Journey", {
         fontSize: "32px",
-        color: "#84eab3",
+        color: "#ffffff",
         fontFamily: "Arial",
         backgroundColor: "rgba(0,0,0,0.6)",
         padding: { x: 20, y: 10 },
@@ -371,6 +267,20 @@ class ChatScene extends Phaser.Scene {
       })
       .setOrigin(0.5);
 
+    const nextSceneButton = this.add
+      .text(400, 500, "Next Scene", {
+        fontSize: "24px",
+        backgroundColor: "rgba(0, 0, 0, 0.6)",
+        padding: { x: 10, y: 5 },
+        color: "#ffffff",
+      })
+      .setInteractive()
+      .setOrigin(0.5);
+
+    nextSceneButton.on("pointerdown", () => {
+      this.scene.start("NextScene");
+    });
+
     let nextButton = this.add
       .image(0, 0, "nextButton")
       .setInteractive()
@@ -379,15 +289,12 @@ class ChatScene extends Phaser.Scene {
     nextButton.on("pointerdown", () => this.scene.start("NextScene"));
   }
 }
-
+// FactScene class
 class FactScene extends Phaser.Scene {
-  constructor() {
-    super("FactScene");
-  }
-
-  init(data) {
-    this.imageUrl = data.imageUrl;
-    this.backSceneKey = data.backSceneKey;
+  constructor(key, imageUrl, seeButton) {
+    super(key);
+    this.imageUrl = imageUrl;
+    this.seeButton = seeButton;
   }
 
   preload() {
@@ -407,7 +314,70 @@ class FactScene extends Phaser.Scene {
       .setInteractive();
 
     backButton.on("pointerdown", () => {
-      this.scene.start(this.backSceneKey);
+      this.scene.start("MainScene");
+    });
+
+    // Assign "See Facts" button functionality
+    this.seeButton.on("pointerdown", () => {
+      this.scene.start(this.scene.key);
+    });
+  }
+}
+
+// MainScene class
+class MainScene extends Phaser.Scene {
+  constructor() {
+    super("MainScene");
+  }
+
+  create() {
+    // Create buttons for each fact scene
+    const factScenes = [
+      new FactScene(
+        "factScene1",
+        "https://play.rosebud.ai/assets/Redemption song.png?cuLp"
+      ),
+      new FactScene(
+        "factScene2",
+        "https://play.rosebud.ai/assets/Buffalo Soldiers.png?RwgV"
+      ),
+      new FactScene(
+        "factScene3",
+        "https://play.rosebud.ai/assets/Jamming.png?xXY0"
+      ),
+      new FactScene(
+        "factScene4",
+        "https://play.rosebud.ai/assets/No women No cry.png?JNfy"
+      ),
+      new FactScene(
+        "factScene5",
+        "https://play.rosebud.ai/assets/One love.png?998z"
+      ),
+    ];
+
+    let y = 100;
+
+    factScenes.forEach((factScene) => {
+      // Create a "See Facts" button for each fact scene
+      const seeButton = this.add
+        .text(400, y, "See Facts", {
+          fontSize: "24px",
+          backgroundColor: "rgba(0, 0, 0, 0.6)",
+          padding: { x: 10, y: 5 },
+          color: "#ffffff",
+        })
+        .setOrigin(0.5)
+        .setInteractive();
+
+      // Assign the fact scene to the see button
+      seeButton.factScene = factScene;
+
+      // When the "See Facts" button is clicked, switch to the associated fact scene
+      seeButton.on("pointerdown", () => {
+        this.scene.start(factScene.key);
+      });
+
+      y += 100;
     });
   }
 }
@@ -466,6 +436,24 @@ class NextScene extends Phaser.Scene {
   }
 }
 
+// var config = {
+//   type: Phaser.AUTO,
+//   parent: "renderDiv",
+//   scale: {
+//     mode: Phaser.Scale.FIT,
+//     autoCenter: Phaser.Scale.CENTER_BOTH,
+//     width: 800,
+//     height: 600,
+//   },
+//   physics: {
+//     default: "arcade",
+//     arcade: {
+//       gravity: { y: 200 },
+//     },
+//   },
+//   scene: [StartScene, MainScene, FactScene, NextScene],
+// };
+
 var config = {
   type: Phaser.AUTO,
   parent: "renderDiv",
@@ -485,7 +473,7 @@ var config = {
     StartScene,
     InstructionScene,
     MainScene,
-    FactScene,
+    ...factScenes,
     ChatScene,
     NextScene,
   ],
