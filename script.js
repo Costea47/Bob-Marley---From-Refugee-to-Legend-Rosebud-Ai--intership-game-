@@ -466,29 +466,165 @@ class NextScene extends Phaser.Scene {
   }
 }
 
-var config = {
-  type: Phaser.AUTO,
-  parent: "renderDiv",
-  scale: {
-    mode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH,
-    width: 800,
-    height: 600,
-  },
-  physics: {
-    default: "arcade",
-    arcade: {
-      gravity: { y: 200 },
-    },
-  },
-  scene: [
-    StartScene,
-    InstructionScene,
-    MainScene,
-    FactScene,
-    ChatScene,
-    NextScene,
-  ],
-};
+// Constants for Character and Assets
+const CHARACTER_NAME = "Bob Marley";
+const CHARACTER_DESCRIPTION = `
+You are Bob Marley, a legendary musician who rose from being a refugee to a global icon of reggae music and peace advocacy.
 
-var game = new Phaser.Game(config);
+Information about you:
+
+Bob Marley faced many struggles as a refugee but turned his hardships into powerful music that inspires millions. He is approachable and loves sharing stories about his journey, from his early struggles to his rise as a legend.
+
+First Message of Roleplay:
+
+"Welcome. Would you like to hear about my life as a refugee and how I became a legend? Feel free to ask me anything."
+NOTE: 
+(Ensure your responses are only two sentences long!!)
+`;
+
+const BACKGROUND_IMAGE_URL = `https://play.rosebud.ai/assets/grunge-background-green-orange_1048-194.jpg?glXl`;
+const CHARACTER_IMAGE_URL = `https://play.rosebud.ai/assets/profile-pic (1).png?7KEs`;
+const SONG_PLAYLIST_URLS = [
+  `https://play.rosebud.ai/assets/things-gonna-change-vernon-maytone-brotheration-reggae-2020-141310-[AudioTrimmer.com].mp3?JW2N`,
+  `https://play.rosebud.ai/assets/things-gonna-change-vernon-maytone-brotheration-reggae-2020-141310-[AudioTrimmer.com].mp3?JW2N`,
+  `https://play.rosebud.ai/assets/things-gonna-change-vernon-maytone-brotheration-reggae-2020-141310-[AudioTrimmer.com].mp3?JW2N`,
+];
+
+// BootScene Class Definition
+class BootScene extends Phaser.Scene {
+  constructor() {
+    super({ key: "BootScene" });
+  }
+
+  preload() {
+    // Preload audio files
+    SONG_PLAYLIST_URLS.forEach((url, index) => {
+      this.load.audio(`track_${index}`, url);
+    });
+
+    // Preload images
+    this.load.image("characterImage", CHARACTER_IMAGE_URL);
+    this.load.image("backgroundImage", BACKGROUND_IMAGE_URL);
+  }
+
+  create() {
+    // Initialize the music manager and other dependencies
+    this.game.musicManager = new MusicManager(this.game);
+    const musicKeys = SONG_PLAYLIST_URLS.map((_, index) => `track_${index}`);
+    this.game.musicManager.setPlaylist(musicKeys);
+    this.game.musicManager.playNextTrack();
+    this.game.musicManager.shufflePlaylist();
+
+    // Check for existing save and initialize the game state
+    this.checkForExistingSave();
+
+    // Add the background image
+    const background = this.add.image(
+      this.scale.width / 2,
+      this.scale.height / 2,
+      "backgroundImage"
+    );
+    background.setScale(0.5);
+
+    // Create the character image sprite
+    const characterSprite = this.add.sprite(
+      this.scale.width / 2,
+      this.scale.height / 2,
+      "characterImage"
+    );
+    characterSprite.setScale(0.8);
+
+    // Add the text to the top of the screen
+    this.add
+      .text(400, 50, "Welcome to Bob Marley - From Refugee to Legend", {
+        fontSize: "26px",
+        color: "#84eab3",
+        fontFamily: "Arial",
+        backgroundColor: "rgba(0,0,0,0.6)",
+      })
+      .setOrigin(0.5);
+
+    // Transition to the ChatScene after setup
+    this.scene.start("ChatScene");
+  }
+
+  checkForExistingSave() {
+    const saveData = localStorage.getItem(PROJECT_NAME);
+    if (saveData) {
+      console.info("Save detected.");
+      this.game.saveData = JSON.parse(saveData);
+    } else {
+      console.info("No save detected. Initializing new game state.");
+      // If no save exists, initialize a new save with default values
+      this.game.saveData = {
+        chatLog: "",
+        characterChatManagerState: null,
+      };
+
+      // Save the initial state to localStorage
+      localStorage.setItem(PROJECT_NAME, JSON.stringify(this.game.saveData));
+    }
+  }
+}
+
+// Load External Script Function
+function loadScript(url) {
+  return new Promise((resolve, reject) => {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src = url;
+
+    script.onload = () => resolve();
+    script.onerror = () =>
+      reject(new Error("Script loading failed for " + url));
+
+    document.head.appendChild(script);
+  });
+}
+
+// Game Initialization
+const VERSION_NUMBER = "v1";
+const PROJECT_NAME = `${CHARACTER_NAME} AI Character ${VERSION_NUMBER}`;
+async function initializeGame() {
+  try {
+    // Load the external script before initializing the Phaser game
+    await loadScript(
+      `https://play.rosebud.ai/assets/rosebud_AI_character_template_desktop_library.js.js?BELO`
+    );
+    console.log("Script loaded successfully");
+
+    const config = {
+      type: Phaser.AUTO,
+      parent: "renderDiv",
+      scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+      },
+      width: 800,
+      height: 600,
+      scene: [
+        StartScene,
+        InstructionScene,
+        MainScene,
+        FactScene,
+        NextScene,
+        BootScene,
+        ChatScene,
+      ],
+      dom: {
+        createContainer: true,
+      },
+    };
+
+    // Assuming 'game' is declared in a broader scope if you need to reference it elsewhere
+    window.game = new Phaser.Game(config);
+    window.game.sceneTransitionManager = new SceneTransitionManager(game);
+  } catch (error) {
+    console.error(
+      "Failed to load external script or initialize the Phaser game:",
+      error
+    );
+  }
+}
+
+initializeGame();
