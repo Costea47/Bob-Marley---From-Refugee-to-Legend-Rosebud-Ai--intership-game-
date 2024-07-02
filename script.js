@@ -109,6 +109,8 @@ class MainScene extends Phaser.Scene {
     this.volumeSlider = null;
     this.vinylRecord = null;
     this.openBox = null;
+    this.middleBox = null;
+    this.bottomBox = null;
     this.vinylRecordImage = null;
     this.vinylRecordImageVisible = false;
     this.newImage = null;
@@ -117,9 +119,7 @@ class MainScene extends Phaser.Scene {
     this.newImage2Visible = false;
     this.newImage3 = null;
     this.newImage3Visible = false;
-    this.factButton1 = null; // Fact button for boxImage1
-    this.factButton2 = null; // Fact button for boxImage2
-    this.factButton3 = null; // Fact button for openBox
+    this.factButton = null;
   }
 
   preload() {
@@ -167,23 +167,32 @@ class MainScene extends Phaser.Scene {
       "newImage2",
       "https://play.rosebud.ai/assets/_48e3534f-1c4c-41a5-9dab-6a65dda86323-removebg-preview (2).png?opob"
     );
+    this.load.image(
+      "newImage3",
+      "https://play.rosebud.ai/assets/_db08530a-3ee6-4990-b93f-91836588707e-removebg-preview.png?3bkk"
+    );
   }
 
   create() {
     this.add.image(400, 300, "bobMarleyRoom");
-
     let boxImage1 = this.add
       .image(380, 550, "cardboardBox")
       .setScale(0.2)
       .setInteractive();
-
     let boxImage2 = this.add
       .image(boxImage1.x + boxImage1.displayWidth + 10, 520, "cardboardBox2")
       .setScale(0.2)
       .setInteractive();
-
     this.openBox = this.add
       .image(250, 550, "openBox")
+      .setScale(0.2)
+      .setInteractive();
+    this.middleBox = this.add
+      .image(260, 600, "cardboardBox4")
+      .setScale(0.2)
+      .setInteractive();
+    this.bottomBox = this.add
+      .image(130, 600, "cardboardBox3")
       .setScale(0.2)
       .setInteractive();
 
@@ -326,6 +335,7 @@ class MainScene extends Phaser.Scene {
       }
     });
   }
+
   createVolumeSlider() {
     if (!this.volumeSlider) {
       this.volumeSlider = document.createElement("input");
@@ -339,63 +349,21 @@ class MainScene extends Phaser.Scene {
     }
   }
 }
-``;
-
-class ChatScene extends Phaser.Scene {
-  constructor() {
-    super("ChatScene");
-  }
-
-  preload() {
-    this.load.image(
-      "nextButton",
-      "https://play.rosebud.ai/assets/Custom-Icon-Design-Flat-Cute-Arrows-Button-Arrow-Right-1.512.png?i992"
-    );
-  }
-
-  create() {
-    this.add
-      .text(400, 30, "Chat with Bob Marley about his Refugee Journey", {
-        fontSize: "32px",
-        color: "#84eab3",
-        fontFamily: "Arial",
-        backgroundColor: "rgba(0,0,0,0.6)",
-        padding: { x: 20, y: 10 },
-      })
-      .setOrigin(0.5, 0);
-
-    this.add
-      .text(400, 300, "This is the Chat Scene", {
-        fontSize: "32px",
-        color: "#ffffff",
-      })
-      .setOrigin(0.5);
-
-    let nextButton = this.add
-      .image(0, 0, "nextButton")
-      .setInteractive()
-      .setOrigin(0, 0)
-      .setScale(0.1);
-    nextButton.on("pointerdown", () => this.scene.start("NextScene"));
-  }
-}
 
 class FactScene extends Phaser.Scene {
   constructor() {
     super("FactScene");
   }
 
-  init(data) {
-    this.imageUrl = data.imageUrl;
-    this.backSceneKey = data.backSceneKey;
-  }
-
   preload() {
-    this.load.image("factImage", this.imageUrl);
+    this.load.image(
+      "redemptionSong",
+      "https://play.rosebud.ai/assets/Redemption song.png?cuLp"
+    );
   }
 
   create() {
-    this.add.image(400, 300, "factImage").setOrigin(0.5);
+    this.add.image(400, 300, "redemptionSong").setOrigin(0.5);
 
     const backButton = this.add
       .text(20, 20, "Back", {
@@ -407,7 +375,7 @@ class FactScene extends Phaser.Scene {
       .setInteractive();
 
     backButton.on("pointerdown", () => {
-      this.scene.start(this.backSceneKey);
+      this.scene.start("MainScene");
     });
   }
 }
@@ -426,16 +394,18 @@ class NextScene extends Phaser.Scene {
       "websiteButton",
       "https://play.rosebud.ai/assets/button-304216_1280.png?0V77"
     );
+    this.load.image(
+      "nextButton",
+      "https://play.rosebud.ai/assets/Custom-Icon-Design-Flat-Cute-Arrows-Button-Arrow-Right-1.512.png?i992"
+    );
   }
 
   create() {
-    // Add the background image
     this.add.image(380, 400, "bobMarley2");
 
-    // Add the website button
     let websiteButton = this.add
       .text(400, 580, "Visit arts4refugees.substack.com to discover more!", {
-        color: "#83f28f", // Light blue color,
+        color: "#83f28f",
         fontFamily: "Arial",
         fontSize: "30px",
         backgroundColor: "rgba(0, 0, 0, 0.7)",
@@ -448,26 +418,41 @@ class NextScene extends Phaser.Scene {
       window.open("https://arts4refugees.substack.com/", "_blank");
     });
 
-    // Add the "Thank you for playing!" button
-    let thankYouButton = this.add
-      .text(400, 530, "Thank you for playing!", {
-        color: "#ffffff",
-        fontFamily: "Arial",
-        fontSize: "24px",
-        backgroundColor: "rgba(0, 0, 0, 0.6)",
-        padding: { x: 10, y: 5 },
-      })
-      .setOrigin(0.5, 1)
-      .setInteractive();
-
-    thankYouButton.on("pointerdown", () => {
-      // Handle the event when the "Thank you for playing!" button is clicked
-    });
+    let nextSceneButton = this.add
+      .image(0, 0, "nextButton")
+      .setInteractive()
+      .setOrigin(0, 0)
+      .setScale(0.1);
+    nextSceneButton.on("pointerdown", () => this.scene.start("FinalScene"));
   }
 }
 
-// Constants for Character and Assets
+class FinalScene extends Phaser.Scene {
+  constructor() {
+    super("FinalScene");
+  }
+
+  preload() {
+    // Load any assets needed for this scene
+  }
+
+  create() {
+    // Add any content or functionality for the final scene
+    this.add
+      .text(400, 300, "This is the final scene!", {
+        fontSize: "32px",
+        color: "#ffffff",
+      })
+      .setOrigin(0.5);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 const CHARACTER_NAME = "Bob Marley";
+
+// Describe your chatbot here. This defines exactly how it will behave.
 const CHARACTER_DESCRIPTION = `
 You are Bob Marley, a legendary musician who rose from being a refugee to a global icon of reggae music and peace advocacy.
 
@@ -475,22 +460,29 @@ Information about you:
 
 Bob Marley faced many struggles as a refugee but turned his hardships into powerful music that inspires millions. He is approachable and loves sharing stories about his journey, from his early struggles to his rise as a legend.
 
+
 First Message of Roleplay:
 
-"Welcome. Would you like to hear about my life as a refugee and how I became a legend? Feel free to ask me anything."
+"Welcome. Would you like to hear about my life as a refugee and how I became a legend? Feel free to ask me anything."!!!
+
+
 NOTE: 
-(Ensure your responses are only two sentences long!!)
+(Ensure your responses are short  only one sentece long !!!.)
 `;
 
+// This is the URL of the image for your chatbot'S background image.
 const BACKGROUND_IMAGE_URL = `https://play.rosebud.ai/assets/grunge-background-green-orange_1048-194.jpg?glXl`;
+
+// This is the URL of the image for your chatbot.
 const CHARACTER_IMAGE_URL = `https://play.rosebud.ai/assets/profile-pic (1).png?7KEs`;
+
+// Put URLs of all songs you want to be shuffled in this games's playlist.
 const SONG_PLAYLIST_URLS = [
   `https://play.rosebud.ai/assets/things-gonna-change-vernon-maytone-brotheration-reggae-2020-141310-[AudioTrimmer.com].mp3?JW2N`,
   `https://play.rosebud.ai/assets/things-gonna-change-vernon-maytone-brotheration-reggae-2020-141310-[AudioTrimmer.com].mp3?JW2N`,
   `https://play.rosebud.ai/assets/things-gonna-change-vernon-maytone-brotheration-reggae-2020-141310-[AudioTrimmer.com].mp3?JW2N`,
 ];
 
-// BootScene Class Definition
 class BootScene extends Phaser.Scene {
   constructor() {
     super({ key: "BootScene" });
@@ -502,19 +494,14 @@ class BootScene extends Phaser.Scene {
       this.load.audio(`track_${index}`, url);
     });
 
-    // Preload images
+    // Preload character image
     this.load.image("characterImage", CHARACTER_IMAGE_URL);
+
+    // Preload background image
     this.load.image("backgroundImage", BACKGROUND_IMAGE_URL);
   }
 
   create() {
-    // Initialize the music manager and other dependencies
-    this.game.musicManager = new MusicManager(this.game);
-    const musicKeys = SONG_PLAYLIST_URLS.map((_, index) => `track_${index}`);
-    this.game.musicManager.setPlaylist(musicKeys);
-    this.game.musicManager.playNextTrack();
-    this.game.musicManager.shufflePlaylist();
-
     // Check for existing save and initialize the game state
     this.checkForExistingSave();
 
@@ -524,15 +511,12 @@ class BootScene extends Phaser.Scene {
       this.scale.height / 2,
       "backgroundImage"
     );
-    background.setScale(0.5);
+    background.setScale(0.5); // Adjust the scale as needed
 
-    // Create the character image sprite
-    const characterSprite = this.add.sprite(
-      this.scale.width / 2,
-      this.scale.height / 2,
-      "characterImage"
-    );
-    characterSprite.setScale(0.8);
+    // Create the character image sprite and decrease its size by 20%
+    const characterSprite = this.add.sprite(0, 0, "characterImage");
+    characterSprite.setScale(0.8); // Decrease the sprite size by 20%
+    characterSprite.setPosition(this.scale.width / 2, this.scale.height / 2);
 
     // Add the text to the top of the screen
     this.add
@@ -544,8 +528,8 @@ class BootScene extends Phaser.Scene {
       })
       .setOrigin(0.5);
 
-    // Transition to the ChatScene after setup
-    this.scene.start("ChatScene");
+    // Transition to another scene
+    this.game.sceneTransitionManager.transitionTo("ChatScene");
   }
 
   checkForExistingSave() {
@@ -558,7 +542,7 @@ class BootScene extends Phaser.Scene {
       // If no save exists, initialize a new save with default values
       this.game.saveData = {
         chatLog: "",
-        characterChatManagerState: null,
+        characterChatManagerState: null, // Assuming a default empty state is suitable
       };
 
       // Save the initial state to localStorage
@@ -567,7 +551,6 @@ class BootScene extends Phaser.Scene {
   }
 }
 
-// Load External Script Function
 function loadScript(url) {
   return new Promise((resolve, reject) => {
     var script = document.createElement("script");
@@ -582,15 +565,12 @@ function loadScript(url) {
   });
 }
 
-// Game Initialization
-const VERSION_NUMBER = "v1";
+const VERSION_NUMBER = "v1"; // Set the version number here.
 const PROJECT_NAME = `${CHARACTER_NAME} AI Character ${VERSION_NUMBER}`;
 async function initializeGame() {
   try {
     // Load the external script before initializing the Phaser game
-    await loadScript(
-      `https://play.rosebud.ai/assets/rosebud_AI_character_template_desktop_library.js.js?BELO`
-    );
+    await loadScript(`https://play.rosebud.ai/assets/BobMarley.js?PwIm`);
     console.log("Script loaded successfully");
 
     const config = {
@@ -608,9 +588,10 @@ async function initializeGame() {
         MainScene,
         FactScene,
         NextScene,
+        FinalScene,
         BootScene,
         ChatScene,
-      ],
+      ], // Assuming ChatScene also might depend on the loaded script
       dom: {
         createContainer: true,
       },
